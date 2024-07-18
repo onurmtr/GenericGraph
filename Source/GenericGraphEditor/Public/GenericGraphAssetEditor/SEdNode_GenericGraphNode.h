@@ -13,6 +13,8 @@ public:
 
 	void Construct(const FArguments& InArgs, UEdNode_GenericGraphNode* InNode);
 
+	virtual FReply OnMouseButtonDoubleClick(const FGeometry& InMyGeometry, const FPointerEvent& InMouseEvent) override;
+
 	virtual void UpdateGraphNode() override;
 	virtual void CreatePinWidgets() override;
 	virtual void AddPin(const TSharedRef<SGraphPin>& PinToAdd) override;
@@ -22,7 +24,7 @@ public:
 
 	virtual FSlateColor GetBorderBackgroundColor() const;
 	virtual FSlateColor GetBackgroundColor() const;
-
+	
 	virtual EVisibility GetDragOverMarkerVisibility() const;
 
 	virtual const FSlateBrush* GetNameIcon() const;

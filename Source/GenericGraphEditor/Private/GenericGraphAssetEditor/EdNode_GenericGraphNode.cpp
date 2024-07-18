@@ -26,6 +26,11 @@ UEdGraph_GenericGraph* UEdNode_GenericGraphNode::GetGenericGraphEdGraph()
 	return Cast<UEdGraph_GenericGraph>(GetGraph());
 }
 
+UGenericGraphNode* UEdNode_GenericGraphNode::GetGenericGraphNode()
+{
+	return GenericGraphNode;
+}
+
 FText UEdNode_GenericGraphNode::GetNodeTitle(ENodeTitleType::Type TitleType) const
 {
 	if (GenericGraphNode == nullptr)

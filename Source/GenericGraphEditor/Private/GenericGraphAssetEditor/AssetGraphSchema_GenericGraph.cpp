@@ -8,6 +8,7 @@
 #include "Framework/Commands/GenericCommands.h"
 #include "AutoLayout/ForceDirectedLayoutStrategy.h"
 #include "AutoLayout/TreeLayoutStrategy.h"
+#include <AssetRegistry/AssetRegistryModule.h>
 
 #define LOCTEXT_NAMESPACE "AssetSchema_GenericGraph"
 
@@ -190,6 +191,30 @@ EGraphType UAssetGraphSchema_GenericGraph::GetGraphType(const UEdGraph* TestEdGr
 
 void UAssetGraphSchema_GenericGraph::GetGraphContextActions(FGraphContextMenuBuilder& ContextMenuBuilder) const
 {
+	FAssetRegistryModule& AssetRegistryModule = FModuleManager::LoadModuleChecked<FAssetRegistryModule>(FName("AssetRegistry"));
+	IAssetRegistry& AssetRegistry = AssetRegistryModule.Get();
+
+	// Need to do this if running in the editor with -game to make sure that the assets in the following path are available
+	TArray<FString> PathsToScan;
+	PathsToScan.Add(TEXT("/Game/"));
+	AssetRegistry.ScanPathsSynchronous(PathsToScan);
+
+	// Get asset in path
+	TArray<FAssetData> ScriptAssetList;
+	AssetRegistry.GetAssetsByPath(FName("/Game/"), ScriptAssetList, /*bRecursive=*/true);
+
+	// Ensure all assets are loaded
+	for (const FAssetData& Asset : ScriptAssetList)
+	{
+		// Gets the loaded asset, loads it if necessary
+		Asset.GetAsset();
+		UE_LOG(LogTemp, Warning, TEXT("Asset found: %s"), *Asset.AssetName.ToString());
+	}
+
+
+	///////////////////////////////////
+
+
 	UGenericGraph* Graph = CastChecked<UGenericGraph>(ContextMenuBuilder.CurrentGraph->GetOuter());
 
 	if (Graph->NodeType == nullptr)
@@ -214,6 +239,7 @@ void UAssetGraphSchema_GenericGraph::GetGraphContextActions(FGraphContextMenuBui
 
 	if (!Graph->NodeType->HasAnyClassFlags(CLASS_Abstract))
 	{
+		UE_LOG(LogTemp, Warning, TEXT("What Next"));
 		TSharedPtr<FAssetSchemaAction_GenericGraph_NewNode> NewNodeAction(new FAssetSchemaAction_GenericGraph_NewNode(LOCTEXT("GenericGraphNodeAction", "Generic Graph Node"), Desc, AddToolTip, 0));
 		NewNodeAction->NodeTemplate = NewObject<UEdNode_GenericGraphNode>(ContextMenuBuilder.OwnerOfTemporaries);
 		NewNodeAction->NodeTemplate->GenericGraphNode = NewObject<UGenericGraphNode>(NewNodeAction->NodeTemplate, Graph->NodeType);
@@ -225,6 +251,12 @@ void UAssetGraphSchema_GenericGraph::GetGraphContextActions(FGraphContextMenuBui
 
 	for (TObjectIterator<UClass> It; It; ++It)
 	{
+		if (It->IsChildOf(Graph->NodeType)) {
+			TSubclassOf<UGenericGraphNode> SikicemAma = *It;
+			UE_LOG(LogTemp, Warning, TEXT("Count"));
+			UE_LOG(LogTemp, Warning, TEXT("%s"), *SikicemAma.Get()->GetName());
+	
+		}
 		if (It->IsChildOf(Graph->NodeType) && !It->HasAnyClassFlags(CLASS_Abstract) && !Visited.Contains(*It))
 		{
 			TSubclassOf<UGenericGraphNode> NodeType = *It;
@@ -235,7 +267,7 @@ void UAssetGraphSchema_GenericGraph::GetGraphContextActions(FGraphContextMenuBui
 			if (!Graph->GetClass()->IsChildOf(NodeType.GetDefaultObject()->CompatibleGraphType))
 				continue;
 
-			Desc = NodeType.GetDefaultObject()->ContextMenuName;
+			Desc = FText::FromString(NodeType.Get()->GetName());//  GetDefaultObject()->GetClass()->GetName());
 
 			if (Desc.IsEmpty())
 			{

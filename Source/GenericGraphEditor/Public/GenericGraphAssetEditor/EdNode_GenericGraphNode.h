@@ -23,6 +23,7 @@ public:
 
 	void SetGenericGraphNode(UGenericGraphNode* InNode);
 	UEdGraph_GenericGraph* GetGenericGraphEdGraph();
+	UGenericGraphNode* GetGenericGraphNode();
 
 	SEdNode_GenericGraphNode* SEdNode;
 

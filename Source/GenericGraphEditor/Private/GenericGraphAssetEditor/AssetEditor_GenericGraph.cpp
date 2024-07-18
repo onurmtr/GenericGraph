@@ -287,7 +287,7 @@ void FAssetEditor_GenericGraph::CreateInternalWidgets()
 TSharedRef<SGraphEditor> FAssetEditor_GenericGraph::CreateViewportWidget()
 {
 	FGraphAppearanceInfo AppearanceInfo;
-	AppearanceInfo.CornerText = LOCTEXT("AppearanceCornerText_GenericGraph", "Generic Graph");
+	AppearanceInfo.CornerText = LOCTEXT("AppearanceCornerText_GenericGraph", "OBEY");
 
 	CreateCommandList();
 

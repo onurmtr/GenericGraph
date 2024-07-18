@@ -9,6 +9,8 @@
 #include "GraphEditorSettings.h"
 #include "GenericGraphAssetEditor/EdNode_GenericGraphNode.h"
 #include "GenericGraphAssetEditor/GenericGraphDragConnection.h"
+//#include "AssetEditorManager.h"
+#include "Engine/Blueprint.h"
 
 #define LOCTEXT_NAMESPACE "EdNode_GenericGraph"
 
@@ -39,6 +41,7 @@ public:
 			.Padding(FMargin(5.0f))
 		);
 	}
+
 
 protected:
 	virtual FSlateColor GetPinColor() const override
@@ -80,6 +83,37 @@ void SEdNode_GenericGraphNode::Construct(const FArguments& InArgs, UEdNode_Gener
 	GraphNode = InNode;
 	UpdateGraphNode();
 	InNode->SEdNode = this;
+}
+
+FReply SEdNode_GenericGraphNode::OnMouseButtonDoubleClick(const FGeometry& InMyGeometry, const FPointerEvent& InMouseEvent)
+{	
+	UEdNode_GenericGraphNode* Node = Cast<UEdNode_GenericGraphNode>(GraphNode);
+	if (Node==nullptr) {
+		UE_LOG(LogTemp, Warning, TEXT("Fuck"));
+		return FReply::Unhandled();
+	}
+	else {
+		
+		if (Node->GetGenericGraphNode()->GetClass()->IsAsset()) {
+			GEditor->GetEditorSubsystem<UAssetEditorSubsystem>()->OpenEditorForAsset(Node->GetGenericGraphNode()->GetClass()->ClassGeneratedBy);
+			//GEditor->GetEditorSubsystem<UAssetEditorSubsystem>()->OpenEditorForAsset(Node->GetGenericGraphNode()->GetClass());
+			UE_LOG(LogTemp, Warning, TEXT("Holy Shit"));
+			//WTF->Asset
+		}
+		UE_LOG(LogTemp, Warning, TEXT("Boolean value: %s"), Node->GetGenericGraphNode()->GetClass()->IsAsset() ? TEXT("true") : TEXT("false"));
+
+
+		//UBlueprint* Blueprint = Cast<UBlueprint>(Node->GetGenericGraphNode()->GetAsset());
+
+		Cast<UEdNode_GenericGraphNode>(GraphNode)->GetGenericGraphNode()->GetName();
+		// Optionally call the parent class implementation
+		if (InMouseEvent.IsMouseButtonDown(EKeys::LeftMouseButton))
+		{
+			OnDoubleClick.ExecuteIfBound(GraphNode);
+			return FReply::Handled();
+		}
+		return FReply::Unhandled();
+	}
 }
 
 BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
@@ -126,7 +160,7 @@ void SEdNode_GenericGraphNode::UpdateGraphNode()
 					[
 						SAssignNew(LeftNodeBox, SVerticalBox)
 					]
-
+				
 					// Output Pin Area	
 					+ SVerticalBox::Slot()
 					.FillHeight(1)
@@ -195,7 +229,7 @@ void SEdNode_GenericGraphNode::UpdateGraphNode()
 								[
 									NodeTitle.ToSharedRef()
 								]
-							]
+							]							
 						]					
 					]
 				]

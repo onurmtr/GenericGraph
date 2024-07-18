@@ -17,4 +17,3 @@ TSharedPtr<class SGraphNode> FGraphPanelNodeFactory_GenericGraph::CreateNode(UEd
 	}
 	return nullptr;
 }
-
